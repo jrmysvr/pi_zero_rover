@@ -1,0 +1,26 @@
+name: rpizw-rover
+about: Controls a raspberry pi zero powered rover
+subcommands:
+    - stop:
+        about: stops the rover
+    - unexport:
+        about: unexports the underlying pwm hardware interface so it can be used by other programs
+    - enable:
+        about: enables the motors
+    - disable:
+        about: disables the motors
+    - speed:
+        about: sets the speed of the rover
+        args:
+            - dont-enable:
+                short: d
+                long: dont-enable
+                help: dont enable the motors after setting the speed
+            - LEFT:
+                required: true
+                index: 1
+                help: sets the left motor speed
+            - RIGHT:
+                required: false
+                index: 2
+                help: sets the right motor speed

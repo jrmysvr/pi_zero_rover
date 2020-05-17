@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+BUILD="debug"
+
+if [[ "$1" == *"release"* ]] ; then
+    BUILD="release"
+fi
+
+scp target/arm-unknown-linux-gnueabihf/$BUILD/rover pi@pizero:/home/pi
