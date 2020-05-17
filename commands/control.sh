@@ -3,12 +3,21 @@
 PWM_DIR=/sys/class/pwm/pwmchip0
 PWM0=$PWM_DIR/pwm0
 PWM1=$PWM_DIR/pwm1
+
 PERIOD=20000000
 
-DUTY_CYCLE=1500000
-FRWD=1500000
-SLOW=1000000
-BACK=500000
+#Duty Cycles
+STOP=20000000
+
+FRWD0=2000000
+BACK0=200000
+#SLOW0=1000000
+SLOW0=$BACK0
+
+FRWD1=200000
+BACK1=2000000
+#SLOW1=1000000
+SLOW1=$BACK1
 
 enable() {
 	echo "Enabling"
@@ -29,7 +38,7 @@ disable() {
 
 setup() {
 	echo "Setting up $PWM_DIR"
-
+	disable
 	enable
 
 	echo "Setting Servo Pulse Period"
@@ -37,8 +46,8 @@ setup() {
 	sudo bash -c "echo $PERIOD > $PWM1/period"
 
 	echo "Setting Servo Duty Cycle"
-	sudo bash -c "echo $DUTY_CYCLE > $PWM0/duty_cycle"
-	sudo bash -c "echo $DUTY_CYCLE > $PWM1/duty_cycle"
+	sudo bash -c "echo $FRWD0 > $PWM0/duty_cycle"
+	sudo bash -c "echo $FRWD1 > $PWM1/duty_cycle"
 
 }
 
@@ -54,37 +63,74 @@ set_duty_cycle() {
 
 turn_left() {
 	echo "LEFT TURN"
-	set_duty_cycle 0 $FRWD
-	set_duty_cycle 1 $SLOW
+	set_duty_cycle 0 $FRWD0
+	set_duty_cycle 1 $SLOW1
 }
 
 turn_right() {
 	echo "RIGHT TURN"
-	set_duty_cycle 0 $SLOW
-	set_duty_cycle 1 $FRWD
+	set_duty_cycle 0 $SLOW0
+	set_duty_cycle 1 $FRWD1
 }
 
 go_straight() {
 	echo "STRAIGHT AHEAD"
-	set_duty_cycle 0 $FRWD
-	set_duty_cycle 1 $FRWD
+	set_duty_cycle 0 $FRWD0
+	set_duty_cycle 1 $FRWD1
 }
 
-setup
+full_stop() {
+	echo "Stopping"
+	set_duty_cycle 0 $STOP
+	set_duty_cycle 1 $STOP
+}
 
-sleep 1
+perform_test() {
+	setup
 
-turn_left
+	sleep 1
 
-sleep 1
+	turn_left
 
-go_straight
+	sleep 1
 
-sleep 1
+	go_straight
 
-turn_right 
+	sleep 1
 
-sleep 1
+	turn_right 
 
-disable
-echo "Test Completed"
+	sleep 1
+
+	disable
+	echo "Test Completed"
+}
+
+case "$1" in
+	"--test")
+	perform_test
+	;;
+	"--setup")
+	setup
+	;;
+	"--enable")
+	enable
+	;;
+	"--disable")
+	disable
+	;;
+	"--left")
+	turn_left
+	;;
+	"--right")
+	turn_right
+	;;
+	"--straight")
+	go_straight
+	;;
+	"--stop")
+	full_stop
+	;;
+	*)
+	echo "No Arguments Provided"
+esac
